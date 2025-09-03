@@ -1,148 +1,107 @@
-# HireFusion AI
+# HireFusion AI - Detailed Project Documentation
 
-HireFusion AI is an **AI-powered recruitment platform** built on AWS that automates the hiring workflow by analyzing resumes and grading interview videos. The project integrates multiple AWS services to deliver a scalable, secure, and intelligent recruitment solution.
+## Overview
 
----
+**HireFusion AI** is a cutting-edge AI-powered platform designed to automate the recruitment process by providing **Resume Analysis** and **Interview Grading** services. It utilizes various **AWS services** to process resumes and evaluate interview videos in an efficient, scalable, and accurate manner.
 
-## 🚀 Key Features
+The platform enables recruiters to streamline their hiring process by:
+1. Automatically analyzing resumes and extracting relevant skills.
+2. Grading interview videos based on facial expressions, gestures, and sentiment analysis.
 
-### 1. Resume Analyzer
-
-* Upload resumes in **PDF, DOCX, or TXT** formats.
-* Extracts text using **Amazon Textract**.
-* Identifies skills and keywords with **Amazon Comprehend**.
-* Generates a score based on detected skills.
-* Stores results (skills, score, filename) in **Amazon DynamoDB**.
-
-### 2. Interview Grader
-
-* Upload interviews in **MP4, MOV, or AVI** formats.
-* Detects facial expressions and gestures using **Amazon Rekognition**.
-* Converts speech to text with **Amazon Transcribe**.
-* Analyzes sentiment of responses with **Amazon Comprehend**.
-* Produces an interview score combining emotion + sentiment analysis.
-* Stores results in **Amazon DynamoDB**.
+This document provides an overview of the project, setup instructions, and details about the technologies used.
 
 ---
 
-## 📂 Project Structure
+## Key Features
 
-```
-hirefusion-ai/
-│
-├── backend/
-│   ├── resume_analyzer/
-│   │   ├── Lambda_function_for_resume_analysis.py
-│   │   └── test_resume_lambda.py
-│   ├── interview_grader/
-│   │   ├── video_resume_analyzer_lambda_1.py
-│   │   ├── test_video_lambda_1.py
-│   │   ├── video_resume_analyzer_lambda_2.py
-│   │   └── test_video_lambda_2.py
-│   └── app.py
-│
-├── frontend/
-│   ├── index.html             # Landing page
-│   ├── ind.html               # Login / Signup
-│   ├── dashboard.html         # User dashboard
-│   ├── resume-analyzer.html   # Resume analysis UI
-│   └── interview-grader.html  # Interview grading UI
-│
-├── docs/
-│   ├── flow_chart.jpg
-│   ├── HireFusionAI_documentation.pdf
-│   └── README.md
-│
-└── README.md                  # Project README
-```
+### 1. **Resume Analyzer**
+- **Functionality:**
+  - Upload resumes in formats like **PDF**, **DOCX**, or **TXT**.
+  - Extract text content using **Amazon Textract**.
+  - Detect key skills from the resume using **Amazon Comprehend**.
+  - Score the resume based on the detected skills.
+  - Store results in **Amazon DynamoDB**.
+
+### 2. **Interview Grader**
+- **Functionality:**
+  - Upload interview videos in formats like **MP4**, **MOV**, and **AVI**.
+  - Analyze the video for **facial expressions** and **hand gestures** using **Amazon Rekognition**.
+  - Transcribe speech in the video to text using **Amazon Transcribe**.
+  - Perform **sentiment analysis** on the transcribed text using **Amazon Comprehend**.
+  - Grade the interview based on facial analysis and sentiment analysis.
+  - Store results in **Amazon DynamoDB**.
 
 ---
 
-## 🏗️ AWS Architecture
+## AWS Architecture and Services Used
 
-* **Amazon S3** – Stores uploaded resumes & interview videos.
-* **AWS Lambda** – Serverless functions process resumes & videos.
-* **Amazon Textract** – Extracts text from resumes.
-* **Amazon Comprehend** – Detects skills & performs sentiment analysis.
-* **Amazon Rekognition** – Analyzes facial expressions & gestures.
-* **Amazon Transcribe** – Converts interview speech to text.
-* **Amazon DynamoDB** – Stores analysis results.
-* **Amazon API Gateway** – Provides secure REST APIs for frontend-backend communication.
-* **Amazon CloudWatch** – Monitors function performance & logs.
+### 1. **AWS Lambda**
+- **Purpose:** AWS Lambda functions are used to handle the backend logic for processing resume files and interview videos. Lambda functions are event-driven and get triggered by file uploads to **Amazon S3**.
+  
+- **Roles & Permissions:**
+  - Lambda functions are assigned appropriate **IAM roles** to access resources like S3, Textract, Rekognition, Transcribe, Comprehend, and DynamoDB.
+  - **Event Notification** in **S3** triggers the Lambda function when a new file is uploaded.
 
-![Flow Chart](docs/flow_chart.jpg)
+### 2. **Amazon S3**
+- **Purpose:** S3 is used as the storage service for uploading resumes and interview videos. Once a file is uploaded, an event notification triggers the corresponding Lambda function to process the file.
 
----
+### 3. **Amazon Textract**
+- **Purpose:** Textract is used to extract text from **PDF**, **DOCX**, and **TXT** files (resumes). The extracted text is then processed by **Amazon Comprehend** to identify skills.
 
-## 🔄 Workflow
+### 4. **Amazon Comprehend**
+- **Purpose:** Comprehend is used for **Natural Language Processing (NLP)**. It analyzes the text extracted from resumes to identify entities, particularly **skills**. For interview videos, Comprehend analyzes the transcribed text to identify **sentiments**.
 
-### Resume Analysis
+### 5. **Amazon Rekognition**
+- **Purpose:** Rekognition is used to analyze **facial expressions** and **hand gestures** in interview videos. It provides data on the dominant emotion detected in the faces from the video frames.
 
-1. User uploads resume → S3 bucket.
-2. S3 event triggers Resume Analyzer Lambda.
-3. Textract extracts text → Comprehend detects skills.
-4. Score is generated and saved in DynamoDB.
-5. Results returned to the frontend.
+### 6. **Amazon Transcribe**
+- **Purpose:** Transcribe is used to convert **speech to text** for interview videos, allowing for sentiment analysis on the transcribed content.
 
-### Interview Grading
+### 7. **Amazon DynamoDB**
+- **Purpose:** DynamoDB is a NoSQL database used to store the results of both **Resume Analysis** and **Interview Grading** processes. It stores the resume file name, score, skills, facial expressions, and sentiment analysis.
 
-1. User uploads video → S3 bucket.
-2. S3 event triggers Interview Grader Lambda.
-3. Rekognition analyzes expressions → Transcribe converts audio.
-4. Comprehend performs sentiment analysis.
-5. Score generated and stored in DynamoDB.
-6. Results displayed on frontend.
+### 8. **API Gateway**
+- **Purpose:** API Gateway is used to expose HTTP endpoints for the frontend to interact with the backend Lambda functions, allowing users to upload files, view scores, and more.
+
+### 9. **AWS CloudWatch**
+- **Purpose:** CloudWatch monitors the performance and health of Lambda functions, logging events, errors, and function executions for debugging and optimization.
 
 ---
 
-## ⚙️ Setup Instructions
+## Services Used
 
-### Prerequisites
-
-* AWS Account with permissions for Lambda, S3, Rekognition, Textract, Comprehend, Transcribe, DynamoDB, and API Gateway.
-* Node.js & Python 3.x installed.
-* AWS CLI configured locally.
-
-### Steps
-
-1. Clone the repo:
-
-   ```bash
-   git clone https://github.com/yourusername/hirefusion-ai.git
-   cd hirefusion-ai
-   ```
-2. Deploy backend Lambda functions:
-
-   * Upload code in `backend/resume_analyzer` and `backend/interview_grader`.
-   * Attach IAM roles with required permissions.
-3. Create S3 buckets for resumes and videos.
-4. Configure API Gateway endpoints for resume & video analysis.
-5. Deploy frontend files (`frontend/`) to an S3 static website or hosting service.
-6. Test the full pipeline by uploading resumes and interview videos.
+- **AWS Lambda:** Compute service that runs backend code based on events (file uploads).
+- **Amazon S3:** Object storage service for storing resumes and interview videos.
+- **Amazon Textract:** Extracts text from resumes for analysis.
+- **Amazon Comprehend:** Identifies key skills and analyzes sentiment from resume and interview texts.
+- **Amazon Rekognition:** Detects facial expressions and gestures in interview videos.
+- **Amazon Transcribe:** Converts audio in interview videos to text.
+- **Amazon DynamoDB:** Stores analysis results (skills, scores, and sentiment).
+- **API Gateway:** Exposes HTTP endpoints for user interactions.
+- **AWS CloudWatch:** Monitors function performance and logs errors.
 
 ---
 
-## 📊 Tech Stack
+## Project Workflow
 
-* **Frontend**: HTML, CSS, JavaScript
-* **Backend**: AWS Lambda (Python)
-* **Database**: Amazon DynamoDB
-* **Cloud Services**: S3, Textract, Comprehend, Rekognition, Transcribe, API Gateway, CloudWatch
+### 1. **Resume Analysis Workflow**
+1. **File Upload:** The user uploads a resume (PDF, DOCX, or TXT) to the **Amazon S3** bucket.
+2. **Trigger Lambda:** An S3 **event notification** triggers the **Resume Analysis Lambda** function.
+3. **Text Extraction:** The Lambda function uses **Amazon Textract** to extract text from the resume.
+4. **Skill Extraction:** **Amazon Comprehend** analyzes the text to extract relevant skills.
+5. **Score Generation:** A score is generated based on the number of detected skills.
+6. **Store Results:** The results, including the resume file name, score, and skills, are stored in **Amazon DynamoDB**.
+7. **Return Results:** A response with the extracted skills and score is returned to the frontend for display.
 
----
-
-## 📈 Future Improvements
-
-* Add support for **ATS scoring** with customizable skill weights.
-* Enable **real-time video streaming analysis**.
-* Integrate **email notifications** for recruiters.
-* Provide a **analytics dashboard** for recruiters using Amazon QuickSight.
-
----
-
-## 👨‍💻 Author
-
-**Srivallisa Sai Veerabhadra Ayyan Bikkavolu**
-[LinkedIn](https://www.linkedin.com/in/ayyan-bikkavolu-33a32b291/) | [GitHub](https://github.com/23P31A0506)
+### 2. **Interview Grading Workflow**
+1. **File Upload:** The user uploads an interview video (MP4, MOV, AVI) to the **Amazon S3** bucket.
+2. **Trigger Lambda:** An S3 **event notification** triggers the **Interview Grading Lambda** function.
+3. **Facial Expression Analysis:** The Lambda function uses **Amazon Rekognition** to detect facial expressions and gestures from the video.
+4. **Speech-to-Text:** **Amazon Transcribe** converts the speech in the video to text.
+5. **Sentiment Analysis:** **Amazon Comprehend** analyzes the transcribed text for sentiment.
+6. **Generate Score:** A score is generated based on facial analysis, gestures, and sentiment.
+7. **Store Results:** The results, including the video file name, score, facial analysis, and sentiment, are stored in **Amazon DynamoDB**.
+8. **Return Results:** A response with the analyzed results is returned to the frontend for display.
 
 ---
+
